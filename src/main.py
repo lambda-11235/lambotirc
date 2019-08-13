@@ -18,27 +18,23 @@
 
 from bot import Bot
 import commands
+import reactions
 
 bot = Bot("lambotirc", "card.freenode.net", 6666, "#redeclipse", commandSymbol = '!')
 
-bot.registerCommand('dice', commands.dice)
-bot.registerCommand('icecream', commands.icecream)
-bot.registerCommand('help', commands.help)
-bot.registerCommand('hug', commands.hug)
-bot.registerCommand('kick', commands.kick)
-bot.registerCommand('postfix', commands.postfix)
-bot.registerCommand('say', commands.say)
-bot.registerCommand('surprise', commands.surprise)
-bot.registerCommand('uuid', commands.uuidC)
-bot.registerCommand('divby0', lambda msg, arg, bot: 1/0)
-bot.registerCommand('music', lambda msg, arg, bot: bot.say("do re mi fa sol la ti do"))
-bot.registerCommand('shrug', lambda msg, arg, bot: bot.say("¯\_(ツ)_/¯"))
+bot.registerCommand(commands.Action())
+bot.registerCommand(commands.Dice())
+bot.registerCommand(commands.Help())
+bot.registerCommand(commands.Hug())
+bot.registerCommand(commands.Icecream())
+bot.registerCommand(commands.Kick())
+bot.registerCommand(commands.Postfix())
+bot.registerCommand(commands.Say())
+bot.registerCommand(commands.Shrug())
+bot.registerCommand(commands.Surprise())
+bot.registerCommand(commands.UUID())
 
-bot.registerReaction(bot.name + ':.*', lambda msg, bot:
-        bot.say(f"{msg.sender.nick}: Me no speak human language"))
-
-bot.registerReaction(' *where *am *i\\?? *', lambda msg, bot:
-        bot.say(f"{msg.sender.nick}: You're on {bot.channel}"),
-        True)
+bot.registerReaction(reactions.Respond())
+bot.registerReaction(reactions.Kick())
 
 bot.mainLoop()

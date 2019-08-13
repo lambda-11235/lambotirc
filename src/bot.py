@@ -18,6 +18,7 @@ import re
 import socket
 
 from message import *
+import util
 
 
 class Bot:
@@ -68,28 +69,27 @@ class Bot:
                 print("### JOINED")
 
         while True:
-            msg = self.getMsg()
+            try:
+                msg = self.getMsg()
 
-            if msg.command == 'PRIVMSG':
-                if msg.params == [self.channel]:
-                    try:
-                        if len(msg.trailing) > 0 and msg.trailing[0] == self.commandSymbol:
-                            self.handleCommand(msg)
-                        else:
-                            self.handleReaction(msg)
-                    except Exception as err:
-                        self.say(f"Error: {err}")
-            elif msg.command == 'PING':
-                arg = []
+                if msg.command == 'PRIVMSG':
+                    if msg.params == [self.channel] and len(msg.trailing) > 0 and msg.trailing[0] == self.commandSymbol:
+                        self.handleCommand(msg)
+                elif msg.command == 'PING':
+                    arg = []
 
-                if len(msg.params) > 0:
-                    arg = msg.params[0]
-                elif msg.trailing is not None:
-                    arg = msg.trailing
-                elif msg.sender.nick is not None:
-                    arg = msg.sender.nick
+                    if len(msg.params) > 0:
+                        arg = msg.params[0]
+                    elif msg.trailing is not None:
+                        arg = msg.trailing
+                    elif msg.sender.nick is not None:
+                        arg = msg.sender.nick
 
-                self.sendMsg(Message('PONG', [arg]))
+                    self.sendMsg(Message('PONG', [arg]))
+
+                self.handleReaction(msg)
+            except Exception as err:
+                self.say(f"Error: {err}")
 
 
     def getMsg(self):
@@ -148,12 +148,14 @@ class Bot:
             command = msg.trailing[1:]
             arg = ''
 
+        arg = util.sanitise(arg)
+
         print(f"### COMMAND ({msg.sender}, {command}, {arg})")
 
-        action = self.commands.get(command)
+        com = self.commands.get(command)
 
-        if action is not None:
-            action(msg, arg, self)
+        if com is not None:
+            com.run(msg, arg, self)
         else:
             self.say(f"{command} is not a recognized command")
 
@@ -162,40 +164,24 @@ class Bot:
         """
         Checks for reactions to a post.
         """
-        for (regex, action) in self.reactions:
-            if regex.match(msg.trailing):
-                action(msg, self)
+        for react in self.reactions:
+            if react.shouldRun(msg, self):
+                react.run(msg, self)
 
 
-    def registerCommand(self, name, action):
+    def registerCommand(self, command):
         """
         Registers a command.
 
-        name: The text the user enter for the command.
-        action: A function of the form `foo(msg, arg, bot)`.
-            The parameters meanings are a follows.
-            msg: The Message object associated with the command.
-            arg: The part of the message that comes after the command.
-            bot: A reference to the current Bot instance.
+        command: An object of type Command.
         """
-        self.commands[name] = action
+        self.commands[command.getName()] = command
 
 
-    def registerReaction(self, regex, action, ignoreCase=False):
+    def registerReaction(self, reaction):
         """
         Registers a reaction to certain posts.
 
-        regex: A regular expression that triggers the reaction if it matches a
-            post.
-        action: A function of the form `foo(msg, bot)`.
-            The parameters meanings are a follows.
-            msg: The Message object that triggered the reaction.
-            bot: A reference to the current Bot instance.
-        ignoreCase: Whether the regex should ignore letter case in the message.
+        reaction: An object of type reaction.
         """
-        flags = 0
-
-        if ignoreCase:
-            flags = flags | re.IGNORECASE
-
-        self.reactions.append((re.compile(regex, flags), action))
+        self.reactions.append(reaction)
