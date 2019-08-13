@@ -44,12 +44,16 @@ class Bot:
         self.msgQueue = []
         self.unparsed = bytearray()
 
+        self.running = False
+
 
     def mainLoop(self):
         """
         Opens a socket, registers the nick, connects to the channel, and starts
         fielding commands.
         """
+        self.running = True
+
         self.socket = socket.socket()
         self.socket.connect((self.server, self.port))
 
@@ -68,7 +72,7 @@ class Bot:
                 joined = True
                 print("### JOINED")
 
-        while True:
+        while self.running:
             try:
                 msg = self.getMsg()
 
@@ -90,6 +94,16 @@ class Bot:
                 self.handleReaction(msg)
             except Exception as err:
                 self.say(f"Error: {err}")
+
+        self.sendMsg(Message('QUIT', []))
+        self.socket.close()
+
+
+    def halt(self):
+        """
+        Halt the main loop.
+        """
+        self.running = False
 
 
     def getMsg(self):

@@ -36,5 +36,6 @@ bot.registerCommand(commands.UUID())
 
 bot.registerReaction(reactions.Respond())
 bot.registerReaction(reactions.Kick())
+bot.registerReaction(reactions.BotKick())
 
 bot.mainLoop()

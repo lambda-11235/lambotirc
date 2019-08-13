@@ -48,3 +48,14 @@ class Kick(Reaction):
 
     def run(self, msg, bot):
         bot.say(f"{msg.params[1]} is outta here")
+
+
+class BotKick(Reaction):
+    def getDocumentation(self):
+        return "quit when bot is kicked"
+
+    def shouldRun(self, msg, bot):
+        return msg.command == 'KICK' and msg.params[1] == bot.name
+
+    def run(self, msg, bot):
+        bot.halt()
