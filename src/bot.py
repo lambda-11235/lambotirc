@@ -113,12 +113,15 @@ class Bot:
         while len(self.msgQueue) == 0:
             self.unparsed += self.socket.recv(256)
 
-            pos = self.unparsed.find(bytearray('\r\n', 'utf-8'))
-            while pos > 0:
-                self.msgQueue.append(Message.fromString(self.unparsed[:pos].decode('utf-8', 'replace')))
-                self.unparsed = self.unparsed[(pos+2):]
-                print("RCV  " + str(self.msgQueue[-1]))
+            try:
                 pos = self.unparsed.find(bytearray('\r\n', 'utf-8'))
+                while pos > 0:
+                    self.msgQueue.append(Message.fromString(self.unparsed[:pos].decode('utf-8', 'replace')))
+                    self.unparsed = self.unparsed[(pos+2):]
+                    print("RCV  " + str(self.msgQueue[-1]))
+                    pos = self.unparsed.find(bytearray('\r\n', 'utf-8'))
+            except:
+                self.unparsed = bytearray()
 
         msg = self.msgQueue[0]
         self.msgQueue = self.msgQueue[1:]
