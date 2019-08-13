@@ -41,7 +41,7 @@ class Bot:
         self.reactions = []
 
         self.msgQueue = []
-        self.unparsed = ""
+        self.unparsed = bytearray()
 
 
     def mainLoop(self):
@@ -97,14 +97,14 @@ class Bot:
         Get the next available message.
         """
         while len(self.msgQueue) == 0:
-            self.unparsed += self.socket.recv(256).decode('utf-8')
+            self.unparsed += self.socket.recv(256)
 
-            pos = self.unparsed.find('\r\n')
+            pos = self.unparsed.find(bytearray('\r\n', 'utf-8'))
             while pos > 0:
-                self.msgQueue.append(Message.fromString(self.unparsed[:pos]))
+                self.msgQueue.append(Message.fromString(self.unparsed[:pos].decode('utf-8', 'replace')))
                 self.unparsed = self.unparsed[(pos+2):]
                 print("RCV  " + str(self.msgQueue[-1]))
-                pos = self.unparsed.find('\r\n')
+                pos = self.unparsed.find(bytearray('\r\n', 'utf-8'))
 
         msg = self.msgQueue[0]
         self.msgQueue = self.msgQueue[1:]

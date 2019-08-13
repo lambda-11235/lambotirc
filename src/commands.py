@@ -48,11 +48,45 @@ def dice(msg, arg, bot):
     else:
         spec = f"{n}d{sides}"
 
+    if n > 100 or sides > 100:
+        bot.say(f"{msg.sender.nick}: count or sides are too big")
+        return
+
     res = 0
     for _ in range(n):
         res += random.randint(1, sides)
 
     bot.say(f"{msg.sender.nick} rolled {res}/{spec}")
+
+def help(msg, arg, bot):
+    commands = bot.commands.keys()
+
+    msg = "Commands:"
+
+    for com in commands:
+        msg += " " + com
+
+    bot.say(msg)
+
+def hug(msg, arg, bot):
+    args = arg.split()
+
+    if len(args) > 0:
+        target = args[0]
+    else:
+        target = msg.sender.nick
+
+    bot.action(f" gives {target} a hug")
+
+def kick(msg, arg, bot):
+    args = arg.split()
+
+    if len(args) > 0:
+        target = args[0]
+    else:
+        target = msg.sender.nick
+
+    bot.action(f" kicks {target} in the jugular")
 
 def surprise(msg, arg, bot):
     args = arg.split()

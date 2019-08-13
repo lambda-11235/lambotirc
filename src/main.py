@@ -19,15 +19,18 @@
 from bot import Bot
 import commands
 
-bot = Bot("lambotirc", "card.freenode.net", 6666, "#redeclipse", comandSymbol = '^')
+bot = Bot("lambotirc", "card.freenode.net", 6666, "#redeclipse", commandSymbol = '!')
 
 bot.registerCommand('dice', commands.dice)
 bot.registerCommand('icecream', commands.icecream)
+bot.registerCommand('help', commands.help)
+bot.registerCommand('hug', commands.hug)
+bot.registerCommand('kick', commands.kick)
 bot.registerCommand('surprise', commands.surprise)
 bot.registerCommand('uuid', commands.uuidC)
-bot.registerCommand('shrug', lambda msg, arg, bot: bot.say("¯\_(ツ)_/¯"))
-bot.registerCommand('music', lambda msg, arg, bot: bot.say("do re mi fa sol la ti do"))
 bot.registerCommand('divby0', lambda msg, arg, bot: 1/0)
+bot.registerCommand('music', lambda msg, arg, bot: bot.say("do re mi fa sol la ti do"))
+bot.registerCommand('shrug', lambda msg, arg, bot: bot.say("¯\_(ツ)_/¯"))
 
 bot.registerReaction(bot.name + ':.*', lambda msg, bot:
         bot.say(f"{msg.sender.nick}: Me no speak human language"))
