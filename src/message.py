@@ -1,5 +1,12 @@
 
 class Sender:
+    """
+    The sender of a message.
+
+    nick: Their nickname.
+    user: Their username.
+    host: The address of the server that's hosting them.
+    """
     def __init__(self, nick, user=None, host=None):
         self.nick = nick
         self.user = user
@@ -37,6 +44,14 @@ class Sender:
 
 
 class Message:
+    """
+    A raw IRC message.
+
+    sender: The one sending the message.
+    command: The IRC command.
+    params: The parameters to the command.
+    trailing: A trailing string IRC uses to pass arbitrary long strings.
+    """
     def __init__(self, command, params, trailing=None, sender=None):
         self.command = command
         self.params = params

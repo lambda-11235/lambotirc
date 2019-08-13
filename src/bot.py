@@ -6,12 +6,21 @@ from message import *
 
 
 class Bot:
-    def __init__(self, name, server, port, channel, comandSymbol='~'):
+    def __init__(self, name, server, port, channel, commandSymbol='~'):
+        """
+        Create a new bot instance.
+
+        name: The bot's nick.
+        server: The IRC server's address.
+        port: The port to connect to. Must be an int.
+        channel: The channel to listen on.
+        commandSymbol: The symbol that triggers the start of a command.
+        """
         self.name = name
         self.server = server
         self.port = port
         self.channel = channel
-        self.comandSymbol = comandSymbol
+        self.commandSymbol = commandSymbol
 
         self.commands = {}
         self.reactions = []
@@ -21,6 +30,10 @@ class Bot:
 
 
     def mainLoop(self):
+        """
+        Opens a socket, registers the nick, connects to the channel, and starts
+        fielding commands.
+        """
         self.socket = socket.socket()
         self.socket.connect((self.server, self.port))
 
@@ -45,7 +58,7 @@ class Bot:
             if msg.command == 'PRIVMSG':
                 if msg.params == [self.channel]:
                     try:
-                        if len(msg.trailing) > 0 and msg.trailing[0] == self.comandSymbol:
+                        if len(msg.trailing) > 0 and msg.trailing[0] == self.commandSymbol:
                             self.handleCommand(msg)
                         else:
                             self.handleReaction(msg)
@@ -65,6 +78,9 @@ class Bot:
 
 
     def getMsg(self):
+        """
+        Get the next available message.
+        """
         while len(self.msgQueue) == 0:
             self.unparsed += self.socket.recv(256).decode('utf-8')
 
@@ -80,16 +96,34 @@ class Bot:
         return msg
 
     def sendMsg(self, msg):
+        """
+        Send a message to the server.
+        """
         print("SEND " + str(msg))
         self.socket.send(bytearray(str(msg) + '\r\n', 'utf-8'))
 
 
     def say(self, msg):
-            self.sendMsg(Message('PRIVMSG', [self.channel], trailing = msg))
+        """
+        Makes the bot say something in the channel.
+        """
+        self.sendMsg(Message('PRIVMSG', [self.channel], trailing = msg))
+
     def action(self, msg):
-            self.sendMsg(Message('PRIVMSG', [self.channel], trailing = '\x01ACTION ' + msg + '\x01'))
+        """
+        Makes the bot say something in the third person.
+
+        Example:
+        python > bot.say(" lands on face")
+        channel> * bot lands on face
+        """
+        self.sendMsg(Message('PRIVMSG', [self.channel], trailing = '\x01ACTION ' + msg + '\x01'))
+
 
     def handleCommand(self, msg):
+        """
+        Passes off a command to one of the registered actions.
+        """
         pos = msg.trailing.find(' ')
 
         if pos > 0:
@@ -108,15 +142,42 @@ class Bot:
         else:
             self.say(f"{command} is not a recognized command")
 
+
     def handleReaction(self, msg):
+        """
+        Checks for reactions to a post.
+        """
         for (regex, action) in self.reactions:
             if regex.match(msg.trailing):
                 action(msg, self)
 
+
     def registerCommand(self, name, action):
+        """
+        Registers a command.
+
+        name: The text the user enter for the command.
+        action: A function of the form `foo(msg, arg, bot)`.
+            The parameters meanings are a follows.
+            msg: The Message object associated with the command.
+            arg: The part of the message that comes after the command.
+            bot: A reference to the current Bot instance.
+        """
         self.commands[name] = action
 
+
     def registerReaction(self, regex, action, ignoreCase=False):
+        """
+        Registers a reaction to certain posts.
+
+        regex: A regular expression that triggers the reaction if it matches a
+            post.
+        action: A function of the form `foo(msg, bot)`.
+            The parameters meanings are a follows.
+            msg: The Message object that triggered the reaction.
+            bot: A reference to the current Bot instance.
+        ignoreCase: Whether the regex should ignore letter case in the message.
+        """
         flags = 0
 
         if ignoreCase:
