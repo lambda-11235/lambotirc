@@ -26,7 +26,7 @@ class Bot:
 
         self.sendMsg(Message('PASS', ['password']))
         self.sendMsg(Message('NICK', [self.name]))
-        self.sendMsg(Message('USER', [self.name, '8', '*'], trailing='IRC test bot'))
+        self.sendMsg(Message('USER', [self.name, '*', '*'], trailing='IRC test bot'))
 
         self.sendMsg(Message('JOIN', [self.channel]))
 
