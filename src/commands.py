@@ -14,9 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import uuid
+import math
 import random
 import time
+import uuid
 
 def icecream(msg, arg, bot):
     args = arg.split()
@@ -101,3 +102,56 @@ def surprise(msg, arg, bot):
 
 def uuidC(msg, arg, bot):
     bot.say(f"{msg.sender.nick}: {uuid.uuid1()}")
+
+
+def postfix(msg, arg, bot):
+    """
+    Executes simple postfix arithmetic. i.e. 1 2.3 + 4 - 2 3 * *
+    """
+    stack = []
+    num = ""
+
+    digits = "e.0123456789"
+
+    for c in arg:
+        if c in digits:
+            num += c
+        else:
+            if len(num) > 0:
+                stack.append(float(num))
+                num = ""
+
+        if c == '+':
+            stack[-2] = stack[-2] + stack[-1]
+            stack = stack[:-1]
+        elif c == '-':
+            stack[-2] = stack[-2] - stack[-1]
+            stack = stack[:-1]
+        elif c == '*':
+            stack[-2] = stack[-2] * stack[-1]
+            stack = stack[:-1]
+        elif c == '/':
+            stack[-2] = stack[-2] / stack[-1]
+            stack = stack[:-1]
+        elif c == '^':
+            stack[-2] = stack[-2] ** stack[-1]
+            stack = stack[:-1]
+        elif c == 'x':
+            stack[-1] = math.exp(stack[-1])
+        elif c == 'l':
+            stack[-1] = math.log(stack[-1])
+        elif c == 's':
+            stack[-1] = math.sin(stack[-1])
+        elif c == 'c':
+            stack[-1] = math.cos(stack[-1])
+        elif c == 't':
+            stack[-1] = math.tan(stack[-1])
+        elif c == 'a':
+            stack[-1] = math.atan(stack[-1])
+        elif c not in " \t" + digits:
+            raise RuntimeError(f"bad math symbol {c}")
+
+    if len(num) > 0:
+        stack.append(float(num))
+
+    bot.say(f"{msg.sender.nick}: {stack[-1]}")
