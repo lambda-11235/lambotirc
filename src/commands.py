@@ -88,6 +88,9 @@ def kick(msg, arg, bot):
 
     bot.action(f" kicks {target} in the jugular")
 
+def say(msg, arg, bot):
+    bot.say(arg)
+
 def surprise(msg, arg, bot):
     args = arg.split()
 
