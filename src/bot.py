@@ -73,9 +73,9 @@ class Bot:
                 print("### JOINED")
 
         while self.running:
-            try:
-                msg = self.getMsg()
+            msg = self.getMsg()
 
+            try:
                 if msg.command == 'PRIVMSG':
                     if msg.params == [self.channel] and len(msg.trailing) > 0 and msg.trailing[0] == self.commandSymbol:
                         self.handleCommand(msg)
