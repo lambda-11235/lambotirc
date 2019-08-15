@@ -204,6 +204,27 @@ class Kick(Command):
         bot.action(f" kicks {target} in the jugular")
 
 
+class Pray(Command):
+    def getName(self):
+        return "pray"
+
+    def getUsage(self):
+        return "[nick]"
+
+    def getDocumentation(self):
+        return "prays for someone"
+
+    def run(self, msg, arg, bot):
+        args = arg.split()
+
+        if len(args) > 0:
+            target = args[0]
+        else:
+            target = msg.sender.nick
+
+        bot.say("lorem ipsum dolor sit amet {target}. amen")
+
+
 class Shrug(Command):
     def getName(self):
         return "shrug"

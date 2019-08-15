@@ -33,6 +33,14 @@ class Math(Command):
         bot.say(str(Parser(arg).eval()))
 
 
+mathConsts = {
+    'e': math.e,
+    'pi': math.pi,
+    'phi': (1 + math.sqrt(5))/2,
+
+    'nice': 69
+}
+
 mathFuncs = {
     'abs': abs,
     'exp': math.exp,
@@ -55,7 +63,7 @@ class Parser:
     <expr> := <mult> { ('+'|'-') <mult> } ;
     <mult> := <pow> { '*'|'/') <pow> } ;
     <pow>  := ['-'] <term> [ ^ <term> ] ;
-    <term> := <num> | '(' <expr> ')' | <sym> '(' <expr> ')' ;
+    <term> := <num> | '(' <expr> ')' | <sym> [ '(' <expr> ')' ] ;
     """
     def __init__(self, string):
         self.toks = Lexer(string).lex()
@@ -147,18 +155,25 @@ class Parser:
             res = self.expr()
             self.match(')')
         elif self.next()[0].isalpha():
-            func = mathFuncs.get(self.next())
-
-            if func is None:
-                self.fail(f"{self.next()} is not a valid math function")
-
+            sym = self.next()
             self.consume()
 
-            self.match('(')
-            res = self.expr()
-            self.match(')')
+            if self.hasNext() and self.next() == '(':
+                self.consume()
+                res = self.expr()
+                self.match(')')
 
-            res = func(res)
+                func = mathFuncs.get(sym)
+
+                if func is None:
+                    self.fail(f"{sym} is not a valid math function")
+
+                res = func(res)
+            else:
+                res = mathConsts.get(sym)
+
+                if res is None:
+                    self.fail(f"{sym} is not a valid math constant")
 
         return res
 
