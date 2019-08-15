@@ -19,6 +19,7 @@
 from bot import Bot
 import commands
 import reactions
+from mathCommand import Math
 
 bot = Bot("lambotirc", "card.freenode.net", 6666, "#redeclipse", commandSymbol = '!')
 
@@ -33,6 +34,8 @@ bot.registerCommand(commands.Say())
 bot.registerCommand(commands.Shrug())
 bot.registerCommand(commands.Surprise())
 bot.registerCommand(commands.UUID())
+
+bot.registerCommand(Math())
 
 bot.registerReaction(reactions.Respond())
 bot.registerReaction(reactions.Kick())

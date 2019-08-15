@@ -16,6 +16,7 @@
 
 import re
 import socket
+import traceback
 
 from message import *
 import util
@@ -94,6 +95,8 @@ class Bot:
                 self.handleReaction(msg)
             except Exception as err:
                 self.say(f"Error: {err}")
+                #for line in traceback.format_exc().split('\n'):
+                #    self.say(line)
 
         self.sendMsg(Message('QUIT', []))
         self.socket.close()
