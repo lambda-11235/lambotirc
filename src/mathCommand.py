@@ -147,6 +147,8 @@ class Parser:
         return res
 
     def term(self):
+        res = None
+
         if isinstance(self.next(), float):
             res = self.next()
             self.consume()
@@ -174,6 +176,9 @@ class Parser:
 
                 if res is None:
                     self.fail(f"{sym} is not a valid math constant")
+
+        if res is None:
+            self.fail()
 
         return res
 

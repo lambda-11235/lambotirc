@@ -222,7 +222,7 @@ class Pray(Command):
         else:
             target = msg.sender.nick
 
-        bot.say("lorem ipsum dolor sit amet {target}. amen")
+        bot.say(f"lorem ipsum dolor sit amet {target}. amen")
 
 
 class Shrug(Command):
