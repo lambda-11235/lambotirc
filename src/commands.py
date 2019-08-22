@@ -267,9 +267,13 @@ class Surprise(Command):
         args = arg.split()
 
         if len(args) > 0:
-            bot.say("you get a car, you get a car, you get a car, ...")
-            time.sleep(2)
-            bot.say(f"{args[0]} gets a goat")
+            target = args[0]
+        else:
+            target = msg.sender.nick
+
+        bot.say("you get a car, you get a car, you get a car, ...")
+        time.sleep(2)
+        bot.say(f"{target} gets a goat")
 
 
 class UUID(Command):

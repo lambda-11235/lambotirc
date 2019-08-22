@@ -18,6 +18,7 @@
 
 from bot import Bot
 import commands
+import filters
 import reactions
 from mathCommand import Math
 
@@ -37,6 +38,8 @@ bot.registerCommand(commands.Surprise())
 bot.registerCommand(commands.UUID())
 
 bot.registerCommand(Math())
+
+bot.registerFilter(filters.REDiscord())
 
 bot.registerReaction(reactions.Respond())
 bot.registerReaction(reactions.Kick())

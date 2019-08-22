@@ -40,6 +40,7 @@ class Bot:
         self.commandSymbol = commandSymbol
 
         self.commands = {}
+        self.filters = []
         self.reactions = []
 
         self.msgQueue = []
@@ -75,6 +76,8 @@ class Bot:
 
         while self.running:
             msg = self.getMsg()
+
+            self.handleFilters(msg)
 
             try:
                 if msg.command == 'PRIVMSG':
@@ -179,6 +182,21 @@ class Bot:
             self.say(f"{command} is not a recognized command")
 
 
+    def handleFilters(self, msg):
+        """
+        Applies all relevant filters to a message and returns it.
+        """
+        hasFiltered = False
+
+        for filt in self.filters:
+            if filt.shouldRun(msg):
+                filt.run(msg)
+                hasFiltered = True
+
+        if hasFiltered:
+            print(f"FLT  {msg}")
+
+
     def handleReaction(self, msg):
         """
         Checks for reactions to a post.
@@ -195,6 +213,16 @@ class Bot:
         command: An object of type Command.
         """
         self.commands[command.getName()] = command
+
+
+    def registerFilter(self, filt):
+        """
+        Registers a filter. Please note, the order of filters matters! Filters
+        are applied in the order they are registered.
+
+        command: An object of type Filter.
+        """
+        self.filters.append(filt)
 
 
     def registerReaction(self, reaction):
