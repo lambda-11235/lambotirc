@@ -212,7 +212,7 @@ class Lexer:
             elif ch.isdigit():
                 num = ""
 
-                while self.hasNext() and (ch.isdigit() or ch in ".e"):
+                while self.hasNext() and (ch.isdigit() or ch in ".e-"):
                     num += ch
                     self.consume()
 
