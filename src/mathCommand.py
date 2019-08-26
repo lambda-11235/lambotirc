@@ -64,6 +64,8 @@ class Parser:
     <mult> := <pow> { '*'|'/') <pow> } ;
     <pow>  := ['-'] <term> [ ^ <term> ] ;
     <term> := <num> | '(' <expr> ')' | <sym> [ '(' <expr> ')' ] ;
+    <num>  := <digits> [ '.' <digits> ] [ 'e' <digits> ]
+    <digits> := <digit> { <digit> }
     """
     def __init__(self, string):
         self.toks = Lexer(string).lex()
@@ -105,7 +107,7 @@ class Parser:
     def expr(self):
         res = self.mult()
 
-        while self.hasNext() and self.next() in '+-':
+        while self.hasNext() and self.next() in set('+-'):
             if self.next() == '+':
                 self.consume()
                 res += self.mult()
@@ -118,7 +120,7 @@ class Parser:
     def mult(self):
         res = self.pow()
 
-        while self.hasNext() and self.next() in '*/':
+        while self.hasNext() and self.next() in set('*/'):
             if self.next() == '*':
                 self.consume()
                 res *= self.pow()
@@ -137,7 +139,7 @@ class Parser:
 
         res = self.term()
 
-        if self.hasNext() and self.next() in '^':
+        if self.hasNext() and self.next() == '^':
             self.consume()
             res **= self.term()
 
@@ -187,47 +189,68 @@ class Lexer:
     def __init__(self, string):
         self.string = string
         self.toks = []
-        self.num = ""
-        self.sym = ""
-        self.sawPoint = False
+        self.pos = 0
 
     def lex(self):
-        for c in self.string:
-            if c in "+-*/^()":
-                self.tokNum()
-                self.tokSym()
-                self.toks.append(c)
-            elif c in "abcdefghijklmnopqrstuvwxyz":
-                self.tokNum()
-                self.sym += c
-            elif c in "0123456789":
-                self.tokSym()
-                self.num += c
-            elif c == '.':
-                self.tokSym()
+        while self.hasNext():
+            ch = self.next()
 
-                if self.sawPoint:
-                    raise RuntimeError(f"unexpected '.' when lexing {self.num}")
-                else:
-                    self.num += c
-                    self.sawPoint = True
-            elif c in " \t":
-                pass
+            if ch in "+-*/^()":
+                self.toks.append(ch)
+                self.consume()
+            elif ch.isalpha():
+                sym = ""
+
+                while self.hasNext() and ch.isalpha():
+                    sym += ch
+                    self.consume()
+
+                    if self.hasNext():
+                        ch = self.next()
+
+                self.toks.append(sym)
+            elif ch.isdigit():
+                num = ""
+
+                while self.hasNext() and (ch.isdigit() or ch in ".e"):
+                    num += ch
+                    self.consume()
+
+                    if self.hasNext():
+                        ch = self.next()
+
+                print(num)
+
+                # NOTE: I'm letting float handle errors like 1..0
+                # May want to tidy up later
+                self.toks.append(float(num))
+            elif ch.isspace():
+                self.consume()
             else:
-                raise RuntimeError(f"unexpected '{c}' when lexing")
-
-        self.tokNum()
-        self.tokSym()
+                self.fail(f"unrecognized character {ch}")
 
         return self.toks
 
-    def tokNum(self):
-        if self.num != "":
-            self.toks.append(float(self.num))
-            self.num = ""
-            self.sawPoint = False
+    def hasNext(self):
+        return self.pos < len(self.string)
 
-    def tokSym(self):
-        if self.sym != "":
-            self.toks.append(self.sym)
-            self.sym = ""
+    def next(self):
+        if self.hasNext():
+            return self.string[self.pos]
+        else:
+            self.fail()
+
+    def consume(self):
+        self.pos += 1
+
+    def match(self, ch):
+        if self.next() == ch:
+            self.consume()
+        else:
+            self.fail()
+
+    def fail(self, msg=None):
+        if msg is None:
+            msg = "could not parse math expression"
+
+        raise RuntimeError(msg)
