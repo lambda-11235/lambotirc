@@ -38,6 +38,9 @@ mathConsts = {
     'pi': math.pi,
     'phi': (1 + math.sqrt(5))/2,
 
+    'inf': float('inf'),
+    'nan': float('nan'),
+
     'nice': 69
 }
 
